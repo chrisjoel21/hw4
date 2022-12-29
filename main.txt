@@ -1,0 +1,178 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <string>
+#include <queue>
+#include "BST.h"
+#include "PrioQueue.h"
+#include "ArgumentManager.h"
+
+using namespace std;
+string add(string s, string cmd)
+{
+    string newstr;
+    for (int i = 0; i < s.length(); i++)
+    {
+        newstr += s[i];
+        if (s[i] == cmd[0])
+        {
+            newstr += cmd[2];
+        }
+    }
+    return newstr;
+}
+// remove
+string remove(string s, string cmd)
+{
+    string newstr;
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (s[i] != cmd[0])
+        {
+            newstr += s[i];
+        }
+    }
+    return newstr;
+}
+// replace
+string replace(string s, string cmd)
+{
+    string newstr;
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (s[i] != cmd[0])
+        {
+            newstr += s[i];
+        }
+        else
+        {
+            newstr += cmd[2];
+        }
+    }
+    return newstr;
+}
+// swap
+string swap(string s, string cmd)
+{
+    string newstr;
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (s[i] == cmd[0])
+        {
+            newstr += cmd[2];
+        }
+        else if (s[i] == cmd[2])
+        {
+            newstr += cmd[0];
+        }
+        else
+        {
+            newstr += s[i];
+        }
+    }
+    return newstr;
+}
+int main(int argc, char *argv[]){
+ArgumentManager am (argc, argv);
+string input = am.get("input");
+string output = am.get("output");
+
+ifstream ifs("input2.txt");
+ofstream ofs("output1.txt");
+
+//ifstream ifs(input);
+//ofstream ofs(output);
+
+string line;
+string trav;
+PrioQueue instr; 
+queue<string>msgQ;
+BSTNode *root = NULL;
+
+while(getline(ifs,line)){
+    if(line == "Inorder" || line == "Postorder" || line == "Preorder" ){
+        trav = line;
+        cout << trav<<endl;
+    }else{
+     //cout << line <<endl;
+    // cout << line.find('(')<<endl;
+    // cout << line.length() <<endl;
+    // cout << line.find(')')-line.find('(') <<endl;
+    int priority = stoi(line.substr(line.find('(')+1,(line.find(')')-line.find('('))-1));
+    //cout << priority <<endl;
+    instr.enqueue(line, priority);
+    }   
+}
+instr.print();
+string message;
+while (!instr.isEmpty()){
+    if(instr.getFront().find("DECODE")==0){
+    message =instr.getFront().substr(instr.getFront().find('[')+1,(instr.getFront().find(']')-instr.getFront().find('['))-1);
+cout << message <<endl;
+ msgQ.push(message);
+
+}
+else if (!msgQ.empty()) {
+    if(instr.getFront().find("REPLACE")==0){
+    string cmd;
+    cmd +=instr.getFront().substr(instr.getFront().find('[')+1,(instr.getFront().find(']')-instr.getFront().find('['))-1);
+    //cmd +=instr.getFront().substr(instr.getFront().find(',')+1,(instr.getFront().find(']')-instr.getFront().find(','))-1);
+    cout << cmd <<endl;
+    
+message = replace(message, cmd);
+msgQ.pop();
+msgQ.push(message);
+cout << message <<endl;
+//instr.dequeue();
+}else if(instr.getFront().find("ADD")==0){
+    string cmd;
+    cmd +=instr.getFront().substr(instr.getFront().find('[')+1,(instr.getFront().find(']')-instr.getFront().find('['))-1);
+    cout << cmd <<endl;
+message = add(message, cmd);
+msgQ.pop();
+msgQ.push(message);
+cout << message <<endl;
+//instr.dequeue();
+} else if(instr.getFront().find("REMOVE")==0){
+    string cmd;
+    cmd +=instr.getFront().substr(instr.getFront().find('[')+1,(instr.getFront().find(']')-instr.getFront().find('['))-1);
+    cout << cmd <<endl;
+message = remove(message, cmd);
+msgQ.pop();
+msgQ.push(message);
+cout << message <<endl;
+//instr.dequeue();
+} else if(instr.getFront().find("SWAP")==0){
+    string cmd;
+    cmd +=instr.getFront().substr(instr.getFront().find('[')+1,(instr.getFront().find(']')-instr.getFront().find('['))-1);
+    cout << cmd <<endl;
+message = swap(message, cmd);
+msgQ.pop();
+msgQ.push(message);
+cout << message <<endl;
+//instr.dequeue();
+} else if(instr.getFront().find("BST")==0){
+    string cmd;
+    cmd +=instr.getFront().substr(instr.getFront().find('[')+1,(instr.getFront().find(']')-instr.getFront().find('['))-1);
+    cout << cmd <<endl;
+//message = swap(message, cmd);
+msgQ.pop();
+// msgQ.push(message);
+// cout << message <<endl;
+if (root == NULL)
+                {
+                    root = new BSTNode(message);
+                }
+                else
+                {
+                    root->insert(new BSTNode(message));
+                }
+//instr.dequeue();
+} 
+
+}
+instr.dequeue();
+
+}
+//cout << instr.getFront().find("DECODE");
+}
